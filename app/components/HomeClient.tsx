@@ -1,140 +1,60 @@
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
 import { IoIosArrowRoundDown } from "react-icons/io";
+import { FoodListing } from "@prisma/client";
+import { useRouter } from "next/navigation";
+import EmptyPlace from "./EmptyPlace";
 
-const HomeClient = () => {
-  const filters = [
-    {
-      name: "American",
-      selected: false,
-    },
-    {
-      name: "BBq",
-      selected: false,
-    },
-    {
-      name: "Breakfast",
-      selected: false,
-    },
-    {
-      name: "lunch",
-      selected: false,
-    },
-    {
-      name: "Dinner",
-      selected: false,
-    },
-    {
-      name: "Chinese",
-      selected: false,
-    },
-    {
-      name: "Indian",
-      selected: true,
-    },
-    {
-      name: "Deserts",
-      selected: false,
-    },
-    {
-      name: "Italian",
-      selected: true,
-    },
-  ];
+const filters = [
+  {
+    name: "American",
+    selected: false,
+  },
+  {
+    name: "BBq",
+    selected: false,
+  },
+  {
+    name: "Breakfast",
+    selected: false,
+  },
+  {
+    name: "lunch",
+    selected: false,
+  },
+  {
+    name: "Dinner",
+    selected: false,
+  },
+  {
+    name: "Chinese",
+    selected: false,
+  },
+  {
+    name: "Indian",
+    selected: true,
+  },
+  {
+    name: "Deserts",
+    selected: false,
+  },
+  {
+    name: "Italian",
+    selected: true,
+  },
+];
 
-  const foodData = [
-    {
-      name: "Classic Margherita Pizza",
-      image: "https://cdn.dummyjson.com/recipe-images/1.webp",
-      rating: 4.6,
-      reviewCount: 3,
-      price: 10.99,
-      address: "123 Main St, Cityville, USA",
-      restaurantName: "Pizza Paradise",
-    },
-    {
-      name: "Vegetarian Stir-Fry",
-      image: "https://cdn.dummyjson.com/recipe-images/2.webp",
-      rating: 4.7,
-      reviewCount: 36,
-      price: 8.49,
-      address: "456 Elm St, Townsville, USA",
-      restaurantName: "Wok Master",
-    },
-    {
-      name: "Chocolate Chip Cookies",
-      image: "https://cdn.dummyjson.com/recipe-images/3.webp",
-      rating: 4.9,
-      reviewCount: 23,
-      price: 5.99,
-      address: "789 Oak St, Villagetown, USA",
-      restaurantName: "Sweet Treats Bakery",
-    },
-    {
-      name: "Chicken Alfredo Pasta",
-      image: "https://cdn.dummyjson.com/recipe-images/4.webp",
-      rating: 4.9,
-      reviewCount: 38,
-      price: 12.99,
-      address: "101 Pine St, Hilltop, USA",
-      restaurantName: "Pasta Haven",
-    },
-    {
-      name: "Mango Salsa Chicken",
-      image: "https://cdn.dummyjson.com/recipe-images/5.webp",
-      rating: 4.9,
-      reviewCount: 25,
-      price: 11.49,
-      address: "234 Cedar St, Mountainview, USA",
-      restaurantName: "Tropical Bistro",
-    },
-    // Duplicated entries with the same image URL
-    {
-      name: "Classic Margherita Pizza",
-      image: "https://cdn.dummyjson.com/recipe-images/1.webp",
-      rating: 4.6,
-      reviewCount: 3,
-      price: 10.99,
-      address: "123 Main St, Cityville, USA",
-      restaurantName: "Pizza Paradise",
-    },
-    {
-      name: "Vegetarian Stir-Fry",
-      image: "https://cdn.dummyjson.com/recipe-images/2.webp",
-      rating: 4.7,
-      reviewCount: 36,
-      price: 8.49,
-      address: "456 Elm St, Townsville, USA",
-      restaurantName: "Wok Master",
-    },
-    {
-      name: "Chocolate Chip Cookies",
-      image: "https://cdn.dummyjson.com/recipe-images/3.webp",
-      rating: 4.9,
-      reviewCount: 23,
-      price: 5.99,
-      address: "789 Oak St, Villagetown, USA",
-      restaurantName: "Sweet Treats Bakery",
-    },
-    {
-      name: "Chicken Alfredo Pasta",
-      image: "https://cdn.dummyjson.com/recipe-images/4.webp",
-      rating: 4.9,
-      reviewCount: 38,
-      price: 12.99,
-      address: "101 Pine St, Hilltop, USA",
-      restaurantName: "Pasta Haven",
-    },
-    {
-      name: "Mango Salsa Chicken",
-      image: "https://cdn.dummyjson.com/recipe-images/5.webp",
-      rating: 4.9,
-      reviewCount: 25,
-      price: 11.49,
-      address: "234 Cedar St, Mountainview, USA",
-      restaurantName: "Tropical Bistro",
-    },
-  ];
+interface HomeClientProps {
+  foodList: FoodListing[];
+}
+
+const HomeClient: React.FC<HomeClientProps> = ({ foodList }) => {
+  const router = useRouter();
+
+  if (foodList?.length === 0) {
+    return <EmptyPlace />;
+  }
 
   return (
     <div className="flex flex-col md:flex-row gap-10">
@@ -173,13 +93,17 @@ const HomeClient = () => {
           </p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-12 ">
-          {foodData.map((item) => (
-            <Link href={"item/1"} key={item.name} className="py-3">
+          {foodList.map((item) => (
+            <div
+              onClick={() => router.push(`/item/${item.id}`)}
+              key={item.id}
+              className="py-3"
+            >
               <div className="cols-span-1 cursor-pointer group">
                 <div className="flex flex-col gap-2 w-full">
                   <div className="aspect-video w-full relative overflow-hidden rounded-xl">
                     <Image
-                      src={item.image}
+                      src={item.imageSrc}
                       alt="item"
                       fill
                       className="object-cover h-full w-full group-hover:scale-110 transition duration-200"
@@ -189,14 +113,14 @@ const HomeClient = () => {
                   <div className="flex flex-row items-center gap-1">
                     <div className="font-semibold">{item.restaurantName}, </div>
                     <div className="font-light text-neutral-500">
-                      {item.address}
+                      {item.restaurantLocation}
                     </div>
                   </div>
 
                   <div className="font-semibold">$ {item.price}</div>
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </div>

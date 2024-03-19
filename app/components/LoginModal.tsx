@@ -4,14 +4,42 @@ import { IoMdClose } from "react-icons/io";
 import { FcGoogle } from "react-icons/fc";
 import useLoginModal from "../hooks/useLoginModal";
 import useRegisterModal from "../hooks/useRegisterModal";
+import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const LoginModal = () => {
   const loginModal = useLoginModal();
   const registerModal = useRegisterModal();
+  const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FieldValues>({
+    defaultValues: { email: "", password: "" },
+  });
 
   if (!loginModal.isOpen) {
     return null;
   }
+
+  const onSubmit: SubmitHandler<FieldValues> = (data) => {
+    signIn("credentials", {
+      ...data,
+      redirect: false,
+    }).then((callback) => {
+      if (callback?.ok) {
+        router.refresh();
+        loginModal.onClose();
+      }
+
+      if (callback?.error) {
+        alert(callback.error);
+      }
+    });
+  };
 
   const toggleModal = () => {
     loginModal.onClose();
@@ -40,9 +68,17 @@ const LoginModal = () => {
                   Email
                 </label>
                 <input
+                  id="email"
+                  {...register("email", { required: true })}
                   type="text"
                   placeholder="Email"
-                  className="block border w-full py-4 px-4 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-400 transition "
+                  className={`block border w-full py-4 px-4 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-400 transition 
+                  ${
+                    errors["email"]
+                      ? "border-rose-500 focus:border-rose-500"
+                      : "border-neutral-300"
+                  }
+                  `}
                 />
               </div>{" "}
               <div className="mt-4 flex flex-col gap-2">
@@ -50,17 +86,31 @@ const LoginModal = () => {
                   Password
                 </label>
                 <input
-                  type="text"
+                  id="password"
+                  {...register("password", { required: true })}
+                  type="password"
                   placeholder="Password"
-                  className="block border w-full py-4 px-4 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-400 transition "
+                  className={`block border w-full py-4 px-4 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-400 transition 
+                  ${
+                    errors["password"]
+                      ? "border-rose-500 focus:border-rose-500"
+                      : "border-neutral-300 "
+                  }
+                  `}
                 />
               </div>
               <div className="mt-16 text-center">
-                <button className="bg-orange-400 w-full py-3 text-white font-semibold text-lg rounded hover:opacity-90">
+                <button
+                  onClick={handleSubmit(onSubmit)}
+                  className="bg-orange-400 w-full py-3 text-white font-semibold text-lg rounded hover:opacity-90"
+                >
                   Continue
                 </button>
               </div>
-              <button className="relative mt-2 w-full border py-3 border-neutral-500 rounded font-semibold hover:opacity-80">
+              <button
+                onClick={() => signIn("google")}
+                className="relative mt-2 w-full border py-3 border-neutral-500 rounded font-semibold hover:opacity-80"
+              >
                 Continue with Google
                 <div className="absolute top-2 left-4">
                   <FcGoogle size={20} />

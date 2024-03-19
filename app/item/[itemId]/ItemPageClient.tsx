@@ -1,8 +1,16 @@
+"use client";
+
 import Container from "@/app/components/Container";
 import Image from "next/image";
 import { CiStar } from "react-icons/ci";
 import { FaStar } from "react-icons/fa";
 import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
+import { FoodListing } from "@prisma/client";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { TailSpin } from "react-loader-spinner";
+import toast from "react-hot-toast";
 
 const food = {
   name: "Classic Margherita Pizza",
@@ -14,18 +22,47 @@ const food = {
   restaurantName: "Pizza Paradise",
 };
 
-const ItemPageClient = () => {
+interface ItemPageClientProps {
+  ItemById: FoodListing;
+  itemByRestaurant: FoodListing[];
+}
+
+const ItemPageClient: React.FC<ItemPageClientProps> = ({
+  ItemById,
+  itemByRestaurant,
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  const handleAddToCart = (itemId: string) => {
+    setIsLoading(true);
+    axios
+      .post(`/api/cart`, {
+        itemId,
+      })
+      .then(() => {
+        toast.success("Item added to cart");
+        router.refresh();
+      })
+      .catch(() => {
+        alert("Something went wrong");
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
   return (
     <Container>
       <div className="max-w-screen-lg mx-auto">
         <div className="w-full ">
           <div className="">
             <div className="mb-3">
-              <h1 className="text-2xl font-bold">{food.name}</h1>
+              <h1 className="text-2xl font-bold">{ItemById.name}</h1>
             </div>
             <div className="w-full h-[45vh] overflow-hidden rounded-xl relative ">
               <Image
-                src={food.image}
+                src={ItemById.imageSrc}
                 fill
                 alt=""
                 className="w-full object-cover "
@@ -34,23 +71,42 @@ const ItemPageClient = () => {
             <div className=" mt-4 flex flex-row justify-between divide-x">
               <div className="w-1/2 text-center">
                 <h1 className="text-xl font-bold tracking-wide">
-                  {food.restaurantName}
+                  {ItemById.restaurantName}
                 </h1>
                 <p className="text-sm sm:text-base md:text-lg text-neutral-600">
-                  {food.address}
+                  {ItemById.restaurantLocation}
                 </p>
               </div>
               <div className="w-1/2 text-center">
                 <div>
-                  <button className="border px-6 py-1 text-lg font-semibold rounded-full border-neutral-300 hover:text-green-500 hover:bg-white transition bg-green-600 text-white">
-                    Add
+                  <button
+                    onClick={() => handleAddToCart(ItemById.id)}
+                    className="inline-flex justify-center items-center w-28 h-10 text-lg font-semibold rounded-full  transition bg-green-600 text-white"
+                  >
+                    {isLoading ? (
+                      <TailSpin
+                        color="#ffffff"
+                        height={20}
+                        width={20}
+                        strokeWidth={"6px"}
+                      />
+                    ) : (
+                      ""
+                    )}
+                    <span
+                      className={`${
+                        isLoading ? "hidden" : "block"
+                      } font-normal `}
+                    >
+                      ADD
+                    </span>
                   </button>
                 </div>
                 <div className="mt-2 flex justify-center gap-x-6 items-center">
-                  <p className="font-bold text-lg">${food.price}</p>
+                  <p className="font-bold text-lg">${ItemById.price}</p>
                   <p className="inline-flex gap-2 clear-start font-semibold">
                     <CiStar size={20} />
-                    <span>{food.rating}</span>
+                    <span>{ItemById.rating}</span>
                   </p>
                 </div>
               </div>
@@ -63,90 +119,43 @@ const ItemPageClient = () => {
                     (Menu)
                   </span>
                 </h1>
-                <div className="flex flex-row justify-between items-center p-4 pr-10 ">
-                  <div className="">
-                    <h1 className="font-semibold text-xl max-w-xs">
-                      {food.name} (with white sauce)
-                    </h1>
-                    <div className="mt-2 relative h-20 w-20">
-                      <Image
-                        src={food.image}
-                        alt=""
-                        fill
-                        className="absolute rounded-md"
-                      />
+                {itemByRestaurant.map((item) => (
+                  <div className="flex flex-row justify-between items-center p-4 pr-10 ">
+                    <div className="">
+                      <h1 className="font-semibold text-xl max-w-xs">
+                        {item.name} (with white sauce)
+                      </h1>
+                      <div className="mt-2 relative h-20 w-20">
+                        <Image
+                          src={item.imageSrc}
+                          alt=""
+                          fill
+                          className="absolute rounded-md"
+                        />
+                      </div>
+                      <p className="mt-2 text-neutral-600 font-medium">
+                        $ {item.price}
+                      </p>
                     </div>
-                    <p className="mt-2 text-neutral-600 font-medium">$ 233</p>
-                  </div>
-                  <div>
-                    <button className="border bg-white border-gray-300 px-4 py-1 rounded-md text-green-500 hover:bg-green-600 transition hover:text-white">
-                      Add
-                    </button>
-                  </div>
-                </div>
-                <div className="flex flex-row justify-between items-center p-4 pr-10 ">
-                  <div className="">
-                    <h1 className="font-semibold text-xl max-w-xs">
-                      {food.name} (with white sauce)
-                    </h1>
-                    <div className="mt-2 relative h-20 w-20">
-                      <Image
-                        src={food.image}
-                        alt=""
-                        fill
-                        className="absolute rounded-md"
-                      />
+                    <div>
+                      <button
+                        onClick={() => handleAddToCart(item.id)}
+                        className="border border-gray-300 w-16 h-9 rounded-md text-white bg-green-600 transition"
+                      >
+                        {isLoading ? (
+                          <TailSpin
+                            color="#fffff"
+                            width={16}
+                            height={16}
+                            strokeWidth={"4px"}
+                          />
+                        ) : (
+                          <span>ADD</span>
+                        )}
+                      </button>
                     </div>
-                    <p className="mt-2 text-neutral-600 font-medium">$ 233</p>
                   </div>
-                  <div>
-                    <button className="border bg-white border-gray-300 px-4 py-1 rounded-md text-green-500 hover:bg-green-600 transition hover:text-white">
-                      Add
-                    </button>
-                  </div>
-                </div>{" "}
-                <div className="flex flex-row justify-between items-center p-4 pr-10 ">
-                  <div className="">
-                    <h1 className="font-semibold text-xl max-w-xs">
-                      {food.name} (with white sauce)
-                    </h1>
-                    <div className="mt-2 relative h-20 w-20">
-                      <Image
-                        src={food.image}
-                        alt=""
-                        fill
-                        className="absolute rounded-md"
-                      />
-                    </div>
-                    <p className="mt-2 text-neutral-600 font-medium">$ 233</p>
-                  </div>
-                  <div>
-                    <button className="border bg-white border-gray-300 px-4 py-1 rounded-md text-green-500 hover:bg-green-600 transition hover:text-white">
-                      Add
-                    </button>
-                  </div>
-                </div>{" "}
-                <div className="flex flex-row justify-between items-center p-4 pr-10 ">
-                  <div className="">
-                    <h1 className="font-semibold text-xl max-w-xs">
-                      {food.name} (with white sauce)
-                    </h1>
-                    <div className="mt-2 relative h-20 w-20">
-                      <Image
-                        src={food.image}
-                        alt=""
-                        fill
-                        className="absolute rounded-md"
-                      />
-                    </div>
-                    <p className="mt-2 text-neutral-600 font-medium">$ 233</p>
-                  </div>
-                  <div>
-                    <button className="border bg-white border-gray-300 px-4 py-1 rounded-md text-green-500 hover:bg-green-600 transition hover:text-white">
-                      Add
-                    </button>
-                  </div>
-                </div>
+                ))}
               </div>
               {/* <div className="w-2/5">
                 <div className=" rounded-lg shadow-sm border border-neutral-100 p-4 ">

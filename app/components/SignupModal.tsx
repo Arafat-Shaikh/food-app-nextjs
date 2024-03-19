@@ -4,14 +4,41 @@ import { IoMdClose } from "react-icons/io";
 import { FcGoogle } from "react-icons/fc";
 import useRegisterModal from "../hooks/useRegisterModal";
 import useLoginModal from "../hooks/useLoginModal";
+import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import axios from "axios";
+import { signIn } from "next-auth/react";
 
 const SignupModal = () => {
   const registerModal = useRegisterModal();
   const loginModal = useLoginModal();
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FieldValues>({
+    defaultValues: { name: "", email: "", password: "" },
+  });
+
   if (!registerModal.isOpen) {
     return null;
   }
+
+  const onSubmit: SubmitHandler<FieldValues> = (data) => {
+    axios
+      .post("/api/register", data)
+      .then(() => {
+        registerModal.onClose();
+        loginModal.onOpen();
+      })
+      .catch((error) => {
+        alert("something went wrong");
+        console.log(error);
+      })
+      .finally(() => {
+        console.log("loading stop");
+      });
+  };
 
   const toggleModal = () => {
     loginModal.onOpen();
@@ -43,9 +70,13 @@ const SignupModal = () => {
                   Email
                 </label>
                 <input
+                  id="email"
+                  {...register("email", { required: true })}
                   type="text"
                   placeholder="Email"
-                  className="block border w-full py-4 px-4 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-400 transition "
+                  className={`block border w-full py-4 px-4 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-400 transition 
+                  ${errors["email"] ? "border-rose-500" : "border-neutral-300"}
+                  `}
                 />
               </div>{" "}
               <div className="flex flex-col gap-2 mt-4">
@@ -56,9 +87,12 @@ const SignupModal = () => {
                   Name
                 </label>
                 <input
+                  id="name"
+                  {...register("name", { required: true })}
                   type="text"
-                  placeholder="Email"
-                  className="block border w-full py-4 px-4 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-400 transition "
+                  placeholder="Name"
+                  className={`block border w-full py-4 px-4 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-400 transition  
+                  ${errors["name"] ? "border-rose-500" : "border-neutral-300"}`}
                 />
               </div>
               <div className="mt-4 flex flex-col gap-2">
@@ -69,17 +103,31 @@ const SignupModal = () => {
                   Password
                 </label>
                 <input
+                  id="password"
+                  {...register("password", { required: true })}
                   type="text"
                   placeholder="Password"
-                  className="block border w-full py-4 px-4 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-400 transition "
+                  className={`block border w-full py-4 px-4 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-400 transition 
+                  ${
+                    errors["password"]
+                      ? "border-rose-500"
+                      : "border-neutral-300"
+                  }
+                  `}
                 />
               </div>
               <div className="mt-16 text-center">
-                <button className="bg-orange-400 w-full py-3 text-white font-semibold text-lg rounded hover:opacity-90">
+                <button
+                  onClick={handleSubmit(onSubmit)}
+                  className="bg-orange-400 w-full py-3 text-white font-semibold text-lg rounded hover:opacity-90"
+                >
                   Continue
                 </button>
               </div>
-              <button className="relative mt-2 w-full border py-3 border-neutral-500 rounded font-semibold hover:opacity-80">
+              <button
+                onClick={() => signIn("google")}
+                className="relative mt-2 w-full border py-3 border-neutral-500 rounded font-semibold hover:opacity-80"
+              >
                 Continue with Google
                 <div className="absolute top-2 left-4">
                   <FcGoogle size={20} />
