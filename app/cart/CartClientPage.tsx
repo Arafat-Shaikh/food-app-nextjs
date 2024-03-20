@@ -1,3 +1,5 @@
+"use client";
+
 import Container from "../components/Container";
 import Navbar from "../components/Navbar";
 import { FaCheckCircle } from "react-icons/fa";
@@ -5,6 +7,7 @@ import { GoHome } from "react-icons/go";
 import { CiLocationOn } from "react-icons/ci";
 import Image from "next/image";
 import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
+import { FoodListing } from "@prisma/client";
 
 const food = {
   name: "Classic Margherita Pizza",
@@ -16,7 +19,29 @@ const food = {
   restaurantName: "Pizza Paradise",
 };
 
-const CartClientPage = () => {
+interface CartItems {
+  id: string;
+  userId: string;
+  foodId: string;
+  quantity: number;
+  food: FoodListing;
+}
+
+interface CartClientPageProps {
+  cartItems: CartItems[] | null;
+}
+
+const CartClientPage: React.FC<CartClientPageProps> = ({ cartItems }) => {
+  console.log(cartItems);
+
+  const itemTotalAmount = () => {
+    const totalAmount = cartItems?.reduce(
+      (acc, item) => item.quantity * item.food.price + acc,
+      0
+    );
+    return totalAmount;
+  };
+
   return (
     <>
       <Navbar />
@@ -127,36 +152,25 @@ const CartClientPage = () => {
                     </p>
                   </div>
                 </div>
-                <div className="mt-8 flex items-center justify-between">
-                  <div className="text-sm font-medium text-black max-w-32 ">
-                    {food.name}
+
+                {cartItems?.map((item) => (
+                  <div className="mt-8 flex items-center justify-between">
+                    <div className="text-sm font-medium text-black max-w-32 ">
+                      {item.food.name}
+                    </div>
+                    <div className="flex gap-x-3 font-semibold items-center border border-neutral-300 px-3 py-1 text-[#60b246]">
+                      <button>
+                        <AiOutlineMinus size={12} />
+                      </button>
+                      <span className="text-sm">{item.quantity}</span>
+                      <button>
+                        <AiOutlinePlus size={12} />
+                      </button>
+                    </div>
+                    <div className="">$ {item.food.price}</div>
                   </div>
-                  <div className="flex gap-x-3 font-semibold items-center border border-neutral-300 px-3 py-1 text-[#60b246]">
-                    <button>
-                      <AiOutlineMinus size={12} />
-                    </button>
-                    <span className="text-sm">2</span>
-                    <button>
-                      <AiOutlinePlus size={12} />
-                    </button>
-                  </div>
-                  <div className="">$ 573</div>
-                </div>{" "}
-                <div className="mt-8 flex items-center justify-between">
-                  <div className="text-sm font-medium text-black max-w-32 ">
-                    {food.name}
-                  </div>
-                  <div className="flex gap-x-3 font-semibold items-center border border-neutral-300 px-3 py-1 text-[#60b246]">
-                    <button>
-                      <AiOutlineMinus size={12} />
-                    </button>
-                    <span className="text-sm">2</span>
-                    <button>
-                      <AiOutlinePlus size={12} />
-                    </button>
-                  </div>
-                  <div className="">$ 573</div>
-                </div>
+                ))}
+
                 <div className="mt-6 w-full bg-neutral-50 pt-4 pb-1 flex justify-center">
                   <h1 className="flex items-start gap-2">
                     <span className="text-4xl leading-none text-neutral-700">
@@ -172,7 +186,7 @@ const CartClientPage = () => {
                     <h1 className="font-semibold text-base">Bill Details</h1>
                     <div className="flex justify-between ">
                       <div>Item total</div>
-                      <div>$ 110</div>
+                      <div>$ {itemTotalAmount()}</div>
                     </div>
                     <div className="flex justify-between border-b border-neutral-200 pb-3 mb-1">
                       <div>Delivery fee</div>

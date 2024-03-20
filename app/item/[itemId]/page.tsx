@@ -3,6 +3,7 @@ import Navbar from "@/app/components/Navbar";
 import ItemPageClient from "./ItemPageClient";
 import EmptyPlace from "@/app/components/EmptyPlace";
 import getItemByIdAndMenuItems from "@/app/actions/getItemById";
+import { getCartItems } from "@/app/actions/getCartItems";
 
 interface IParams {
   itemId?: string;
@@ -10,6 +11,7 @@ interface IParams {
 
 const FoodItemPage = async ({ params }: { params: IParams }) => {
   const data = await getItemByIdAndMenuItems(params);
+  const cartItems = await getCartItems();
 
   console.log(data?.itemsByRestaurant);
 
@@ -27,6 +29,7 @@ const FoodItemPage = async ({ params }: { params: IParams }) => {
       <ItemPageClient
         ItemById={data?.itemById}
         itemByRestaurant={data.itemsByRestaurant}
+        cartItems={cartItems}
       />
     </ClientOnly>
   );

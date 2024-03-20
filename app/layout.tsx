@@ -26,7 +26,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={font.className}>
         <ClientOnly>
-          <Toaster position="top-right" />
+          <Toaster position="bottom-center" />
           <LoginModal />
           <SignupModal />
         </ClientOnly>

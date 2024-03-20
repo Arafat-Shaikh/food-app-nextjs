@@ -5,7 +5,7 @@ import Image from "next/image";
 import { CiStar } from "react-icons/ci";
 import { FaStar } from "react-icons/fa";
 import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
-import { FoodListing } from "@prisma/client";
+import { CartItem, FoodListing } from "@prisma/client";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -25,17 +25,19 @@ const food = {
 interface ItemPageClientProps {
   ItemById: FoodListing;
   itemByRestaurant: FoodListing[];
+  cartItems: CartItem[] | null;
 }
 
 const ItemPageClient: React.FC<ItemPageClientProps> = ({
   ItemById,
   itemByRestaurant,
+  cartItems,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState("");
   const router = useRouter();
 
   const handleAddToCart = (itemId: string) => {
-    setIsLoading(true);
+    setIsLoading(itemId);
     axios
       .post(`/api/cart`, {
         itemId,
@@ -48,8 +50,19 @@ const ItemPageClient: React.FC<ItemPageClientProps> = ({
         alert("Something went wrong");
       })
       .finally(() => {
-        setIsLoading(false);
+        setIsLoading("");
       });
+  };
+
+  const itemInCart = (itemId: string) => {
+    if (cartItems) {
+      for (let item of cartItems) {
+        if (item.foodId === itemId) {
+          return "ADDED";
+        }
+      }
+    }
+    return "ADD";
   };
 
   return (
@@ -80,10 +93,11 @@ const ItemPageClient: React.FC<ItemPageClientProps> = ({
               <div className="w-1/2 text-center">
                 <div>
                   <button
+                    disabled={isLoading === ItemById.id}
                     onClick={() => handleAddToCart(ItemById.id)}
                     className="inline-flex justify-center items-center w-28 h-10 text-lg font-semibold rounded-full  transition bg-green-600 text-white"
                   >
-                    {isLoading ? (
+                    {isLoading === ItemById.id ? (
                       <TailSpin
                         color="#ffffff"
                         height={20}
@@ -91,15 +105,10 @@ const ItemPageClient: React.FC<ItemPageClientProps> = ({
                         strokeWidth={"6px"}
                       />
                     ) : (
-                      ""
+                      <span className={` font-normal `}>
+                        {itemInCart(ItemById.id)}
+                      </span>
                     )}
-                    <span
-                      className={`${
-                        isLoading ? "hidden" : "block"
-                      } font-normal `}
-                    >
-                      ADD
-                    </span>
                   </button>
                 </div>
                 <div className="mt-2 flex justify-center gap-x-6 items-center">
@@ -139,18 +148,19 @@ const ItemPageClient: React.FC<ItemPageClientProps> = ({
                     </div>
                     <div>
                       <button
+                        disabled={isLoading === item.id}
                         onClick={() => handleAddToCart(item.id)}
-                        className="border border-gray-300 w-16 h-9 rounded-md text-white bg-green-600 transition"
+                        className="inline-flex justify-center items-center border border-gray-300 w-24 h-9 rounded-md text-white bg-green-600 transition"
                       >
-                        {isLoading ? (
+                        {isLoading === item.id ? (
                           <TailSpin
-                            color="#fffff"
-                            width={16}
-                            height={16}
+                            color="#ffffff"
+                            width={18}
+                            height={18}
                             strokeWidth={"4px"}
                           />
                         ) : (
-                          <span>ADD</span>
+                          <span>{itemInCart(item.id)}</span>
                         )}
                       </button>
                     </div>
