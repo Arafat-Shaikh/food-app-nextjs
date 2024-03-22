@@ -38,6 +38,10 @@ const ItemPageClient: React.FC<ItemPageClientProps> = ({
 
   const handleAddToCart = (itemId: string) => {
     setIsLoading(itemId);
+
+    if (isLoading) {
+      return;
+    }
     axios
       .post(`/api/cart`, {
         itemId,
@@ -93,7 +97,10 @@ const ItemPageClient: React.FC<ItemPageClientProps> = ({
               <div className="w-1/2 text-center">
                 <div>
                   <button
-                    disabled={isLoading === ItemById.id}
+                    disabled={
+                      isLoading === ItemById.id ||
+                      itemInCart(ItemById.id) === "ADDED"
+                    }
                     onClick={() => handleAddToCart(ItemById.id)}
                     className="inline-flex justify-center items-center w-28 h-10 text-lg font-semibold rounded-full  transition bg-green-600 text-white"
                   >
@@ -148,7 +155,10 @@ const ItemPageClient: React.FC<ItemPageClientProps> = ({
                     </div>
                     <div>
                       <button
-                        disabled={isLoading === item.id}
+                        disabled={
+                          isLoading === item.id ||
+                          itemInCart(item.id) === "ADDED"
+                        }
                         onClick={() => handleAddToCart(item.id)}
                         className="inline-flex justify-center items-center border border-gray-300 w-24 h-9 rounded-md text-white bg-green-600 transition"
                       >

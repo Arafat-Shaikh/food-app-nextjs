@@ -8,6 +8,9 @@ import { CiLocationOn } from "react-icons/ci";
 import Image from "next/image";
 import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
 import { FoodListing } from "@prisma/client";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 const food = {
   name: "Classic Margherita Pizza",
@@ -33,13 +36,37 @@ interface CartClientPageProps {
 
 const CartClientPage: React.FC<CartClientPageProps> = ({ cartItems }) => {
   console.log(cartItems);
+  const router = useRouter();
 
   const itemTotalAmount = () => {
-    const totalAmount = cartItems?.reduce(
+    if (!cartItems) {
+      return 0;
+    }
+    const totalAmount = cartItems.reduce(
       (acc, item) => item.quantity * item.food.price + acc,
       0
     );
     return totalAmount;
+  };
+
+  const handleQuantity = (opt: string, item: CartItems) => {
+    if (opt === "reduce") {
+      item.quantity -= 1;
+    } else if (opt === "add") {
+      item.quantity += 1;
+    }
+    axios
+      .patch("/api/cart", item)
+      .then(() => {
+        toast.success("item updated");
+        router.refresh();
+      })
+      .catch((error) => {
+        toast.error(error);
+      })
+      .finally(() => {
+        toast.success("item updated finally");
+      });
   };
 
   return (
@@ -159,11 +186,11 @@ const CartClientPage: React.FC<CartClientPageProps> = ({ cartItems }) => {
                       {item.food.name}
                     </div>
                     <div className="flex gap-x-3 font-semibold items-center border border-neutral-300 px-3 py-1 text-[#60b246]">
-                      <button>
+                      <button onClick={() => handleQuantity("reduce", item)}>
                         <AiOutlineMinus size={12} />
                       </button>
                       <span className="text-sm">{item.quantity}</span>
-                      <button>
+                      <button onClick={() => handleQuantity("add", item)}>
                         <AiOutlinePlus size={12} />
                       </button>
                     </div>
@@ -205,14 +232,11 @@ const CartClientPage: React.FC<CartClientPageProps> = ({ cartItems }) => {
                         <span>3</span>
                       </div>
                     </div>
-                    <div className="flex justify-between pb-5 border-b-[2px] mb-3 border-black">
-                      <div>Restaurant Charges</div>
-                      <div>$ 4</div>
-                    </div>
+
                     <div className="flex justify-between">
                       <div className="text-lg text-black font-bold">To Pay</div>
                       <div className="text-base text-black font-bold">
-                        $ 146
+                        $ {itemTotalAmount() + 3}
                       </div>
                     </div>
                   </div>

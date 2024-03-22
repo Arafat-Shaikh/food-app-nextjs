@@ -5,6 +5,7 @@ import ClientOnly from "./components/ClientOnly";
 import LoginModal from "./components/LoginModal";
 import SignupModal from "./components/SignupModal";
 import { Toaster } from "react-hot-toast";
+import UserAddressModal from "./components/UserAddressModal";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,6 +28,7 @@ export default function RootLayout({
       <body className={font.className}>
         <ClientOnly>
           <Toaster position="bottom-center" />
+          <UserAddressModal />
           <LoginModal />
           <SignupModal />
         </ClientOnly>
