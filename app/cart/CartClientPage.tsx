@@ -44,10 +44,7 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
 }) => {
   const router = useRouter();
   const addressModal = useAddressModal();
-
-  // if (cartItems?.length === 0) {
-  //   return <EmptyPlace />;
-  // }
+  const delAddress = userAddress?.find((item) => item.deliveryAddress);
 
   const itemTotalAmount = () => {
     if (!cartItems) {
@@ -80,9 +77,9 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
       });
   };
 
-  const handleSelectedAddress = (item: any) => {
+  const handleSelectedAddress = (item: Address) => {
     axios
-      .post("/api/user/deliver/address", item)
+      .patch("/api/user/address", item)
       .then(() => {
         toast.success("Address Selected");
         router.refresh();
@@ -91,7 +88,22 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
         toast.error("Something went wrong");
       })
       .finally(() => {
-        toast.success("done");
+        toast.success("ok");
+      });
+  };
+
+  const removeDelAddress = (item: any) => {
+    axios
+      .put("/api/user/address", item)
+      .then(() => {
+        toast.success("item deleted");
+        router.refresh();
+      })
+      .catch((error) => {
+        toast.error("Something went wrong");
+      })
+      .finally(() => {
+        console.log("done");
       });
   };
 
@@ -116,7 +128,7 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
                 </div>
               </div>
               <div className="bg-white px-10 py-8 flex flex-col gap-x-8 gap-y-6 mt-6">
-                {true && (
+                {!delAddress?.id && (
                   <>
                     <h1 className="font-bold text-lg">
                       Add a delivery address
@@ -187,24 +199,32 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
                     </div>
                   </>
                 )}
-                {false && (
+                {delAddress?.id && (
                   <div className="flex flex-col gap-y-4">
-                    <div className="flex flex-row gap-x-6">
-                      <h1 className="text-lg font-bold">Delivery Address</h1>
-                      <span className="rounded-full text-[#60b246]">
-                        <FaCheckCircle size={22} />
-                      </span>
+                    <div className="flex items-center justify-between">
+                      <h1 className="text-lg font-bold inline-flex gap-x-6">
+                        Delivery Address{" "}
+                        <span className="rounded-full text-[#60b246]">
+                          <FaCheckCircle size={22} />
+                        </span>
+                      </h1>
+                      <div
+                        onClick={() => removeDelAddress(delAddress)}
+                        className=""
+                      >
+                        <span className=" text-amber-700 font-normal cursor-pointer">
+                          Change
+                        </span>
+                      </div>
                     </div>
                     <div>
-                      <p className="">
-                        1234 Elm Street, Springfield, Anytown, USA
-                      </p>
+                      <p className="">{delAddress.address}</p>
                       <p className="mt-2 flex items-center gap-x-2 ">
                         <span>
                           <FiPhone size={16} />
                         </span>
                         <span className="font-medium text-sm italic">
-                          58492750238
+                          {delAddress.phone}
                         </span>
                       </p>
                     </div>

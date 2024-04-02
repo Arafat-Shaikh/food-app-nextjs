@@ -25,17 +25,17 @@ model User {
   Account        Account[]
   FoodListing    FoodListing[]
   CartItem       CartItem[]
-  addresses      Address[]
+  Addresses      Address[]
 }
 
 model Address {
-  id      String  @id @default(auto()) @map("_id") @db.ObjectId
-  address String
-  phone   String
-  place   String
-  userId  String? @db.ObjectId
-
-  User User? @relation(fields: [userId], references: [id])
+  id              String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String? @db.ObjectId
+  address         String
+  phone           String
+  place           String
+  deliveryAddress Boolean @default(false)
+  User            User?   @relation(fields: [userId], references: [id])
 }
 
 model Account {
