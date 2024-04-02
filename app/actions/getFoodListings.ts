@@ -1,18 +1,69 @@
 import prisma from "@/app/libs/prismadb";
 
-// interface IFoodListingParams {
-//   name: string;
-//   imageSrc: string;
-//   price: number;
-//   rating: number;
-//   restaurantAddress: string;
-//   restaurantName: string;
-// }
+export interface IFoodListingParams {
+  category?: string;
+  topRating?: boolean;
+  lowPrice?: boolean;
+  searchVal?: string;
+  pageVal?: string;
+}
 
-export default async function getFoodListing() {
+export default async function getFoodListing(params: IFoodListingParams) {
   try {
-    const foodListing = await prisma.foodListing.findMany({});
-    return foodListing;
+    const { category, topRating, lowPrice, searchVal, pageVal } = params;
+    const productsPerPage = 6;
+    const page = Number(pageVal) || 1;
+
+    console.log(page);
+
+    let query: any = {};
+    let orderBy: any = {};
+
+    if (searchVal) {
+      console.log(searchVal);
+      query = {
+        OR: [
+          { name: { contains: searchVal, mode: "insensitive" } },
+          { restaurantName: { contains: searchVal, mode: "insensitive" } },
+        ],
+      };
+    } else {
+      if (category) {
+        let categoryArr = category.split(",");
+        query.category = { in: categoryArr };
+      }
+
+      if (lowPrice) {
+        orderBy = {
+          price: "asc",
+        };
+      } else if (topRating) {
+        orderBy = {
+          rating: "desc",
+        };
+      }
+    }
+
+    const foodListing = await prisma.foodListing.findMany({
+      where: query,
+      orderBy: orderBy,
+    });
+
+    let newFoodListing: any = [];
+
+    for (let i = 0; i < foodListing.length; i++) {
+      if (
+        i >= productsPerPage * (page - 1) &&
+        newFoodListing.length < productsPerPage
+      ) {
+        newFoodListing.push(foodListing[i]);
+      }
+      console.log("hii");
+    }
+
+    console.log(newFoodListing);
+
+    return { foodList: newFoodListing, foodListLength: foodListing.length };
   } catch (error: any) {
     throw new Error(error);
   }

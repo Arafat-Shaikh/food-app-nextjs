@@ -6,6 +6,8 @@ import LoginModal from "./components/LoginModal";
 import SignupModal from "./components/SignupModal";
 import { Toaster } from "react-hot-toast";
 import UserAddressModal from "./components/UserAddressModal";
+import Navbar from "./components/Navbar";
+import getCurrentUser from "./actions/getCurrentUser";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,11 +20,13 @@ const font = Nunito({
   subsets: ["latin"],
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const currentUser = await getCurrentUser();
+
   return (
     <html lang="en">
       <body className={font.className}>
@@ -31,6 +35,7 @@ export default function RootLayout({
           <UserAddressModal />
           <LoginModal />
           <SignupModal />
+          <Navbar currentUser={currentUser} />
         </ClientOnly>
         {children}
       </body>

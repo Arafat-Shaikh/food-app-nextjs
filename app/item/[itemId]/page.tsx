@@ -25,7 +25,6 @@ const FoodItemPage = async ({ params }: { params: IParams }) => {
 
   return (
     <ClientOnly>
-      <Navbar />
       <ItemPageClient
         ItemById={data?.itemById}
         itemByRestaurant={data.itemsByRestaurant}

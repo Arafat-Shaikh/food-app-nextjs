@@ -1,6 +1,6 @@
 const EmptyPlace = () => {
   return (
-    <div className="text-center">
+    <div className="flex items-center justify-center h-screen">
       <div>No Results</div>
     </div>
   );

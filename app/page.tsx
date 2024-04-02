@@ -1,19 +1,24 @@
 import getCurrentUser from "./actions/getCurrentUser";
-import getFoodListing from "./actions/getFoodListings";
+import getFoodListing, { IFoodListingParams } from "./actions/getFoodListings";
 import ClientOnly from "./components/ClientOnly";
 import Container from "./components/Container";
 import HomeClient from "./components/HomeClient";
 import Navbar from "./components/Navbar";
 
-const HomePage = async () => {
+interface HomeProps {
+  searchParams: IFoodListingParams;
+}
+
+const HomePage = async ({ searchParams }: HomeProps) => {
+  const { foodList, foodListLength } = await getFoodListing(searchParams);
   const currentUser = await getCurrentUser();
-  const foodList = await getFoodListing();
+
+  console.log(currentUser);
 
   return (
     <ClientOnly>
-      <Navbar currentUser={currentUser} />
       <Container>
-        <HomeClient foodList={foodList} />
+        <HomeClient foodList={foodList} foodListLength={foodListLength} />
       </Container>
     </ClientOnly>
   );

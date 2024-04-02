@@ -7,10 +7,13 @@ import { GoHome } from "react-icons/go";
 import { CiLocationOn } from "react-icons/ci";
 import Image from "next/image";
 import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
-import { FoodListing } from "@prisma/client";
+import { Address, FoodListing } from "@prisma/client";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import useAddressModal from "../hooks/useAddressModal";
+import { FiPhone } from "react-icons/fi";
+import EmptyPlace from "../components/EmptyPlace";
 
 const food = {
   name: "Classic Margherita Pizza",
@@ -32,11 +35,19 @@ interface CartItems {
 
 interface CartClientPageProps {
   cartItems: CartItems[] | null;
+  userAddress: Address[] | null;
 }
 
-const CartClientPage: React.FC<CartClientPageProps> = ({ cartItems }) => {
-  console.log(cartItems);
+const CartClientPage: React.FC<CartClientPageProps> = ({
+  cartItems,
+  userAddress,
+}) => {
   const router = useRouter();
+  const addressModal = useAddressModal();
+
+  // if (cartItems?.length === 0) {
+  //   return <EmptyPlace />;
+  // }
 
   const itemTotalAmount = () => {
     if (!cartItems) {
@@ -69,14 +80,28 @@ const CartClientPage: React.FC<CartClientPageProps> = ({ cartItems }) => {
       });
   };
 
+  const handleSelectedAddress = (item: any) => {
+    axios
+      .post("/api/user/deliver/address", item)
+      .then(() => {
+        toast.success("Address Selected");
+        router.refresh();
+      })
+      .catch((error) => {
+        toast.error("Something went wrong");
+      })
+      .finally(() => {
+        toast.success("done");
+      });
+  };
+
   return (
     <>
-      <Navbar />
       <div className="bg-gray-200 h-full">
         <Container>
-          <div className="grid grid-cols-1 md:grid-cols-9 gap-x-8">
-            <div className="col-span-6">
-              <div className="bg-white px-10 py-8 flex flex-col gap-x-8 gap-y-6">
+          <div className="flex flex-col-reverse lg:flex-row gap-x-8">
+            <div className="lg:w-4/6">
+              <div className="hidden bg-white px-10 py-8 lg:flex flex-col gap-x-8 gap-y-6">
                 <p className="inline-flex gap-6">
                   <span className="text-lg font-bold">Logged In</span>{" "}
                   <span className="rounded-full text-[#60b246]">
@@ -91,70 +116,100 @@ const CartClientPage: React.FC<CartClientPageProps> = ({ cartItems }) => {
                 </div>
               </div>
               <div className="bg-white px-10 py-8 flex flex-col gap-x-8 gap-y-6 mt-6">
-                <h1 className="font-bold text-lg">Add a delivery address</h1>
-                <p></p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 ">
-                  <div className="border border-dashed border-gray-300 aspect-video px-6 py-7 hover:shadow-lg cursor-pointer">
-                    <div className="flex gap-5 justify-between">
-                      <div className="text-gray-600">
-                        <GoHome size={20} />
-                      </div>
-                      <div>
-                        <h1 className="text-lg font-bold">Home</h1>
-                        <p className="text-xs text-neutral-500 mt-1">
-                          B 22/120-G-32, Kashmiri Ganj, Khojwan, Bhelupur,
-                          Varanasi, Uttar Pradesh 221010, India
-                        </p>
-                        <p className="text-sm font-bold mt-7 text-neutral-700">
-                          30 MINS
-                        </p>
-                        <button className="mt-4 text-sm border-[#60b246] border-[2px] font-bold px-5 py-1.5 bg-[#60b246] text-white ">
-                          DELIVER HERE
-                        </button>
+                {true && (
+                  <>
+                    <h1 className="font-bold text-lg">
+                      Add a delivery address
+                    </h1>
+
+                    <div className="grid grid-rows-1 grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 ">
+                      {userAddress?.map((item) => (
+                        <div
+                          key={item.id}
+                          className=" col-span-1 aspect-video border border-gray-300 px-6 py-7 hover:shadow-lg cursor-pointer"
+                        >
+                          <div className="flex gap-5 ">
+                            <div className="text-gray-600">
+                              <GoHome size={20} />
+                            </div>
+                            <div>
+                              <h1 className="text-lg font-bold">
+                                {item.place}
+                              </h1>
+                              <p className="text-xs text-neutral-500 mt-1 min-h-12">
+                                {item.address}
+                              </p>
+                              <p className="flex gap-2 items-center text-sm font-bold mt-7 text-neutral-700">
+                                <span>
+                                  <FiPhone size={16} />
+                                </span>
+                                {item.phone}
+                              </p>
+                              <button
+                                onClick={() => handleSelectedAddress(item)}
+                                className="mt-4 text-sm border-[#60b246] border-[2px] font-bold px-5 py-1.5 bg-[#60b246] text-white "
+                              >
+                                DELIVER HERE
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      <div className="border border-dashed border-gray-300 aspect-video px-6 py-7 hover:shadow-lg cursor-pointer">
+                        <div className="flex gap-5 justify-between">
+                          <div className="text-gray-600">
+                            <CiLocationOn size={20} />
+                          </div>
+                          <div>
+                            <h1 className="text-lg font-bold">
+                              Add New Address
+                            </h1>
+                            <p className="text-xs text-neutral-500 mt-1 min-h-12">
+                              B 22/120-G-32, Kashmiri Ganj, Khojwan, Bhelupur,
+                              Varanasi, Uttar Pradesh 221010, India
+                            </p>
+                            <p className="flex gap-2 items-center text-sm font-bold mt-7 text-neutral-700">
+                              <span>
+                                <FiPhone size={16} />
+                              </span>
+                              999999999
+                            </p>
+                            <button
+                              onClick={() => addressModal.onOpen()}
+                              className="mt-4 text-sm border-[#60b246] border-[2px] font-bold px-5 py-2 bg-white text-[#60b246] w-36 h-9"
+                            >
+                              ADD NEW
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>{" "}
-                  <div className="border border-dashed border-gray-300 aspect-video px-6 py-7 hover:shadow-lg cursor-pointer">
-                    <div className="flex gap-5 justify-between">
-                      <div className="text-gray-600">
-                        <GoHome size={20} />
-                      </div>
-                      <div>
-                        <h1 className="text-lg font-bold">Home</h1>
-                        <p className="text-xs text-neutral-500 mt-1">
-                          B 22/120-G-32, Kashmiri Ganj, Khojwan, Bhelupur,
-                          Varanasi, Uttar Pradesh 221010, India
-                        </p>
-                        <p className="text-sm font-bold mt-7 text-neutral-700">
-                          30 MINS
-                        </p>
-                        <button className="mt-4 text-sm border-[#60b246] border-[2px] font-bold px-5 py-1.5 bg-[#60b246] text-white ">
-                          DELIVER HERE
-                        </button>
-                      </div>
+                  </>
+                )}
+                {false && (
+                  <div className="flex flex-col gap-y-4">
+                    <div className="flex flex-row gap-x-6">
+                      <h1 className="text-lg font-bold">Delivery Address</h1>
+                      <span className="rounded-full text-[#60b246]">
+                        <FaCheckCircle size={22} />
+                      </span>
+                    </div>
+                    <div>
+                      <p className="">
+                        1234 Elm Street, Springfield, Anytown, USA
+                      </p>
+                      <p className="mt-2 flex items-center gap-x-2 ">
+                        <span>
+                          <FiPhone size={16} />
+                        </span>
+                        <span className="font-medium text-sm italic">
+                          58492750238
+                        </span>
+                      </p>
                     </div>
                   </div>
-                  <div className="border border-dashed border-gray-300 aspect-video px-6 py-7 hover:shadow-lg cursor-pointer">
-                    <div className="flex gap-5 justify-between">
-                      <div className="text-gray-600">
-                        <CiLocationOn size={20} />
-                      </div>
-                      <div>
-                        <h1 className="text-lg font-bold">Add New Address</h1>
-                        <p className="text-xs text-neutral-500 mt-1">
-                          B 22/120-G-32, Kashmiri Ganj, Khojwan, Bhelupur,
-                          Varanasi, Uttar Pradesh 221010, India
-                        </p>
-                        <p className="text-sm font-bold mt-7 text-neutral-700">
-                          30 MINS
-                        </p>
-                        <button className="mt-4 text-sm border-[#60b246] border-[2px] font-bold px-5 py-2 bg-white text-[#60b246] w-36 h-9">
-                          ADD NEW
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                )}
               </div>
 
               <div className="mt-6 bg-white px-10 py-8">
@@ -166,7 +221,21 @@ const CartClientPage: React.FC<CartClientPageProps> = ({ cartItems }) => {
                 </button>
               </div>
             </div>
-            <div className="col-span-3 -mr-8 ">
+            <div className="lg:w-2/6  ">
+              <div className="lg:hidden bg-white px-10 py-8 flex flex-col gap-x-8 gap-y-6">
+                <p className="inline-flex gap-6">
+                  <span className="text-base font-bold">Logged In</span>
+                  <span className="rounded-full text-[#60b246]">
+                    <FaCheckCircle size={22} />
+                  </span>
+                </p>
+                <div className="flex items-center gap-x-4 text-lg font-bold divide-x-2 overflow-hidden  ">
+                  <p className="text-sm">Arafat Shaikh</p>
+                  <p className="pl-6 text-sm text-neutral-600">
+                    arafatshaikh823@gmail.com
+                  </p>
+                </div>
+              </div>
               <div className=" bg-white px-6 py-7">
                 <div className="flex gap-3">
                   <div className="relative h-16 w-16">

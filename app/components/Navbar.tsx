@@ -8,25 +8,43 @@ import { TbMenu2 } from "react-icons/tb";
 import { IoIosHelpCircleOutline } from "react-icons/io";
 import useRegisterModal from "../hooks/useRegisterModal";
 import useLoginModal from "../hooks/useLoginModal";
-import { useState } from "react";
+import { KeyboardEvent, useState } from "react";
 import { FaUser } from "react-icons/fa6";
 import getCurrentUser from "../actions/getCurrentUser";
 import { User } from "@prisma/client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import qs from "query-string";
+import { signOut } from "next-auth/react";
 
 interface NavbarProps {
   currentUser?: User | null;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
-  const registerModal = useRegisterModal();
+  const router = useRouter();
   const loginModal = useLoginModal();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchVal, setSearchVal] = useState("");
   console.log(currentUser);
 
-  // const currentUser = await getCurrentUser();
+  const handleKeyUp = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
 
-  // console.log(currentUser?.name);
+    router.replace("/");
+
+    const url = qs.stringifyUrl(
+      {
+        url: "/",
+        query: { searchVal: searchVal },
+      },
+      { skipNull: true }
+    );
+
+    router.push(url);
+  };
+
+  console.log(currentUser);
 
   return (
     <div className="fixed w-full z-10 bg-white px-4 sm:px-8 lg:px-12 py-2 sm:py-3 shadow-sm">
@@ -40,7 +58,9 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
           <input
             type="text"
             placeholder="Search"
-            className="w-full focus:outline-none border border-300 py-3 rounded-full px-3 focus:ring-1 focus:ring-orange-400 transition duration-100 focus:shadow"
+            className="w-full focus:outline-none border border-300 py-3 rounded-full px-6 transition duration-100 "
+            onKeyUp={handleKeyUp}
+            onChange={(e) => setSearchVal(e.target.value)}
           />
         </div>
         <div className="flex gap-4 sm:gap-16 justify-between">
@@ -82,9 +102,21 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
                   <div className="w-full font-medium text-sm text-black py-3 hover:bg-gray-100 transition px-4">
                     <span>Help</span>
                   </div>
-                  <div className="w-full font-medium text-sm text-black py-3 hover:bg-gray-100 transition px-4">
-                    Log in
-                  </div>
+                  {currentUser ? (
+                    <div
+                      onClick={() => signOut()}
+                      className="w-full font-medium text-sm text-black py-3 hover:bg-gray-100 transition px-4"
+                    >
+                      Log out
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => loginModal.onOpen()}
+                      className="w-full font-medium text-sm text-black py-3 hover:bg-gray-100 transition px-4"
+                    >
+                      Log in
+                    </div>
+                  )}
                 </div>
               </div>
             )}
