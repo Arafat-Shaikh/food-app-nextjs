@@ -38,6 +38,9 @@ interface CartClientPageProps {
   userAddress: Address[] | null;
 }
 
+const DELIVERY_FEE = 3;
+const PLATFORM_FEE = 1;
+
 const CartClientPage: React.FC<CartClientPageProps> = ({
   cartItems,
   userAddress,
@@ -56,6 +59,7 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
     );
     return totalAmount;
   };
+  const totalAmount = itemTotalAmount() + DELIVERY_FEE + PLATFORM_FEE;
 
   const handleQuantity = (opt: string, item: CartItems) => {
     if (opt === "reduce") {
@@ -105,6 +109,16 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
       .finally(() => {
         console.log("done");
       });
+  };
+
+  const onCheckout = async () => {
+    const response = await axios.post("/api/user/checkout", {
+      totalAmount,
+      cartItems,
+      delAddress,
+    });
+
+    window.location = response.data.url;
   };
 
   return (
@@ -236,7 +250,10 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
                 <h1 className="text-lg font-bold text-black">
                   Choose Payment Method
                 </h1>
-                <button className="w-full py-2.5 bg-[#60b246] text-white text-xl font-bold hover:shadow-md mt-6">
+                <button
+                  onClick={onCheckout}
+                  className="w-full py-2.5 bg-[#60b246] text-white text-xl font-bold hover:shadow-md mt-6"
+                >
                   Proceed To Pay
                 </button>
               </div>
@@ -306,7 +323,7 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
                     </div>
                     <div className="flex justify-between border-b border-neutral-200 pb-3 mb-1">
                       <div>Delivery fee</div>
-                      <div>$ 11</div>
+                      <div>$ {DELIVERY_FEE}</div>
                     </div>
                     <div className="flex justify-between">
                       <div>Delivery Tip</div>
@@ -316,16 +333,16 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
                       <div>Platform fee</div>
                       <div>
                         <span className="text-neutral-400 line-through mr-2">
-                          $ 4.00
+                          $ 3.00
                         </span>
-                        <span>3</span>
+                        <span>{PLATFORM_FEE}</span>
                       </div>
                     </div>
 
                     <div className="flex justify-between">
                       <div className="text-lg text-black font-bold">To Pay</div>
                       <div className="text-base text-black font-bold">
-                        $ {itemTotalAmount() + 3}
+                        $ {totalAmount}
                       </div>
                     </div>
                   </div>
