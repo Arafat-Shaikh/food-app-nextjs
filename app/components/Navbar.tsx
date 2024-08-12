@@ -44,8 +44,6 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
     router.push(url);
   };
 
-  console.log(currentUser);
-
   return (
     <div className="fixed w-full z-10 bg-white px-4 sm:px-8 lg:px-12 py-2 sm:py-3 shadow-sm">
       <div className="flex justify-between">

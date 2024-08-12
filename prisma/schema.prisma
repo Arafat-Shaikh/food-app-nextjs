@@ -87,6 +87,7 @@ model CartItem {
 
 model Order {
   id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String      @db.ObjectId
   isPaid     Boolean     @default(false)
   orderItems OrderItem[]
   phone      String      @default("")

@@ -10,10 +10,11 @@ import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
 import { Address, FoodListing } from "@prisma/client";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import useAddressModal from "../hooks/useAddressModal";
 import { FiPhone } from "react-icons/fi";
 import EmptyPlace from "../components/EmptyPlace";
+import { useEffect, useState } from "react";
 
 const food = {
   name: "Classic Margherita Pizza",
@@ -48,6 +49,26 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
   const router = useRouter();
   const addressModal = useAddressModal();
   const delAddress = userAddress?.find((item) => item.deliveryAddress);
+  const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const canceledParam = searchParams?.get("canceled");
+  const id = "kdh";
+
+  console.log(typeof canceledParam, canceledParam);
+
+  useEffect(() => {
+    if (canceledParam) {
+      console.log("hello");
+      axios
+        .delete(`/api/user/order/${canceledParam.toString()}`)
+        .then(() => {
+          toast.success("order deleted successfully");
+        })
+        .finally(() => {
+          console.log("finally");
+        });
+    }
+  }, [canceledParam]);
 
   const itemTotalAmount = () => {
     if (!cartItems) {
@@ -112,6 +133,7 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
   };
 
   const onCheckout = async () => {
+    setLoading(true);
     const response = await axios.post("/api/user/checkout", {
       totalAmount,
       cartItems,
@@ -119,6 +141,8 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
     });
 
     window.location = response.data.url;
+
+    setLoading(false);
   };
 
   return (
@@ -252,6 +276,7 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
                 </h1>
                 <button
                   onClick={onCheckout}
+                  disabled={loading}
                   className="w-full py-2.5 bg-[#60b246] text-white text-xl font-bold hover:shadow-md mt-6"
                 >
                   Proceed To Pay

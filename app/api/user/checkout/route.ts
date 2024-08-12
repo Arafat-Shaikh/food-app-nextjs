@@ -36,6 +36,7 @@ export async function POST(request: Request) {
   const order = await prismadb.order.create({
     data: {
       isPaid: false,
+      userId: currentUser.id,
       orderItems: {
         create: cartItems.map((item: any) => ({
           FoodListing: {
@@ -63,7 +64,7 @@ export async function POST(request: Request) {
       enabled: true,
     },
     success_url: `http://localhost:3000/cart?success=1`,
-    cancel_url: `http://localhost:3000/cart?canceled=1`,
+    cancel_url: `http://localhost:3000/cart?canceled=${order.id}`,
     metadata: {
       orderId: order.id,
     },
