@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     });
   }
 
-  return NextResponse.json("added");
+  return NextResponse.json("Added");
 }
 
 export async function PATCH(request: Request) {

@@ -3,14 +3,15 @@
 import Container from "@/app/components/Container";
 import Image from "next/image";
 import { CiStar } from "react-icons/ci";
-import { FaStar } from "react-icons/fa";
-import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
 import { CartItem, FoodListing } from "@prisma/client";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { TailSpin } from "react-loader-spinner";
 import toast from "react-hot-toast";
+import useLoginModal from "@/app/hooks/useLoginModal";
+import { FiShoppingCart } from "react-icons/fi";
+import Link from "next/link";
 
 const food = {
   name: "Classic Margherita Pizza",
@@ -35,6 +36,7 @@ const ItemPageClient: React.FC<ItemPageClientProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState("");
   const router = useRouter();
+  const loginModal = useLoginModal();
 
   const handleAddToCart = (itemId: string) => {
     setIsLoading(itemId);
@@ -51,7 +53,7 @@ const ItemPageClient: React.FC<ItemPageClientProps> = ({
         router.refresh();
       })
       .catch(() => {
-        alert("Something went wrong");
+        loginModal.onOpen();
       })
       .finally(() => {
         setIsLoading("");
@@ -95,7 +97,7 @@ const ItemPageClient: React.FC<ItemPageClientProps> = ({
                 </p>
               </div>
               <div className="w-1/2 text-center">
-                <div>
+                <div className="flex flex-col md:flex-row justify-center items-center gap-2">
                   <button
                     disabled={
                       isLoading === ItemById.id ||
@@ -117,6 +119,17 @@ const ItemPageClient: React.FC<ItemPageClientProps> = ({
                       </span>
                     )}
                   </button>
+                  {itemInCart(ItemById.id) == "ADDED" && (
+                    <Link
+                      href={"/cart"}
+                      className="bg-gray-200 rounded-md px-2 py-1.5 text-black hover:shadow-md inline-flex justify-center items-center gap-2"
+                    >
+                      <span>
+                        <FiShoppingCart size={18} />
+                      </span>
+                      <span className="font-medium">Cart</span>
+                    </Link>
+                  )}
                 </div>
                 <div className="mt-2 flex justify-center gap-x-6 items-center">
                   <p className="font-bold text-lg">${ItemById.price}</p>
@@ -136,7 +149,10 @@ const ItemPageClient: React.FC<ItemPageClientProps> = ({
                   </span>
                 </h1>
                 {itemByRestaurant.map((item) => (
-                  <div className="flex flex-row justify-between items-center p-4 pr-10 ">
+                  <div
+                    key={item.id}
+                    className="flex flex-row justify-between items-center p-4 pr-10 "
+                  >
                     <div className="">
                       <h1 className="font-semibold text-xl max-w-xs">
                         {item.name} (with white sauce)

@@ -312,7 +312,10 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
                 </div>
 
                 {cartItems?.map((item) => (
-                  <div className="mt-8 flex items-center justify-between">
+                  <div
+                    key={item.id}
+                    className="mt-8 flex items-center justify-between"
+                  >
                     <div className="text-sm font-medium text-black max-w-32 ">
                       {item.food.name}
                     </div>
