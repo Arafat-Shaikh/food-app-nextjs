@@ -6,7 +6,7 @@ import HomeClient from "./components/HomeClient";
 interface HomeProps {
   searchParams: IFoodListingParams;
 }
-
+export const dynamic = "force-dynamic";
 const HomePage = async ({ searchParams }: HomeProps) => {
   const { foodList, foodListLength } = await getFoodListing(searchParams);
 
