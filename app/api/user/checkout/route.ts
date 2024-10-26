@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
-    return null;
+    return NextResponse.error();
   }
 
   const { totalAmount, cartItems, delAddress } = await request.json();

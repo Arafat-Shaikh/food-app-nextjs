@@ -29,14 +29,10 @@ export async function PATCH(request: Request) {
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
-    return null;
+    return NextResponse.error();
   }
 
   const body = await request.json();
-
-  if (!body) {
-    return null;
-  }
 
   const addressToUpdate = await prisma.address.findFirst({
     where: {
@@ -71,7 +67,7 @@ export async function PUT(request: Request) {
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
-    return null;
+    return NextResponse.error();
   }
 
   const body = await request.json();

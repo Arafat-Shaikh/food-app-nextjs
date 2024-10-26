@@ -41,7 +41,7 @@ export async function PATCH(request: Request) {
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
-    return null;
+    return NextResponse.error();
   }
 
   const item = await request.json();
@@ -74,7 +74,7 @@ export async function DELETE(request: Request) {
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
-    return null;
+    return NextResponse.error();
   }
 
   const cart = await prisma.cartItem.deleteMany({
