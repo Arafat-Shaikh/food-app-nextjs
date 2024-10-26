@@ -14,13 +14,10 @@ export default async function getFoodListing(params: IFoodListingParams) {
     const productsPerPage = 6;
     const page = Number(pageVal) || 1;
 
-    console.log(page);
-
     let query: any = {};
     let orderBy: any = {};
 
     if (searchVal) {
-      console.log(searchVal);
       query = {
         OR: [
           { name: { contains: searchVal, mode: "insensitive" } },
@@ -58,13 +55,11 @@ export default async function getFoodListing(params: IFoodListingParams) {
       ) {
         newFoodListing.push(foodListing[i]);
       }
-      console.log("hii");
     }
-
-    console.log(newFoodListing);
 
     return { foodList: newFoodListing, foodListLength: foodListing.length };
   } catch (error: any) {
+    console.log(error);
     throw new Error(error);
   }
 }

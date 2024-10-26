@@ -85,21 +85,30 @@ model CartItem {
   food      FoodListing @relation(fields: [foodId], references: [id], onDelete: Cascade)
 }
 
+enum OrderStatus {
+  Processing
+  Delivered
+  Incomplete
+}
+
 model Order {
-  id         String      @id @default(auto()) @map("_id") @db.ObjectId
-  userId     String      @db.ObjectId
-  isPaid     Boolean     @default(false)
-  orderItems OrderItem[]
-  phone      String      @default("")
-  address    String      @default("")
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String      @db.ObjectId
+  isPaid      Boolean     @default(false)
+  totalAmount Int
+  status      OrderStatus @default(Incomplete)
+  orderItems  OrderItem[]
+  phone       String      @default("")
+  address     String      @default("")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
 
 model OrderItem {
   id            String  @id @default(auto()) @map("_id") @db.ObjectId
   foodListingId String? @db.ObjectId
   orderId       String? @db.ObjectId
+  quantity      Int
 
   FoodListing FoodListing? @relation(fields: [foodListingId], references: [id])
   Order       Order?       @relation(fields: [orderId], references: [id])

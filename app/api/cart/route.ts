@@ -46,8 +46,6 @@ export async function PATCH(request: Request) {
 
   const item = await request.json();
 
-  console.log(item);
-
   const existingItem = await prisma.cartItem.findFirst({
     where: { id: item.id, foodId: item.foodId },
   });
@@ -70,4 +68,20 @@ export async function PATCH(request: Request) {
   }
 
   return NextResponse.json("hii");
+}
+
+export async function DELETE(request: Request) {
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    return null;
+  }
+
+  const cart = await prisma.cartItem.deleteMany({
+    where: {
+      userId: currentUser.id,
+    },
+  });
+
+  return NextResponse.json(cart);
 }

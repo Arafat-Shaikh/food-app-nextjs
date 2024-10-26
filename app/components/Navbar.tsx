@@ -3,22 +3,24 @@
 import { SiSwiggy } from "react-icons/si";
 import { RxAvatar } from "react-icons/rx";
 import { FiShoppingCart } from "react-icons/fi";
-import { BiSolidOffer } from "react-icons/bi";
 import { TbMenu2 } from "react-icons/tb";
-import { IoIosHelpCircleOutline } from "react-icons/io";
-import useRegisterModal from "../hooks/useRegisterModal";
 import useLoginModal from "../hooks/useLoginModal";
 import { KeyboardEvent, useState } from "react";
 import { FaUser } from "react-icons/fa6";
-import getCurrentUser from "../actions/getCurrentUser";
-import { User } from "@prisma/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import qs from "query-string";
 import { signOut } from "next-auth/react";
 
+interface User {
+  id: string;
+  name: string | null;
+  email: string | null;
+  image: string | null;
+}
+
 interface NavbarProps {
-  currentUser?: User | null;
+  currentUser: User | null;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
@@ -26,7 +28,6 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
   const loginModal = useLoginModal();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchVal, setSearchVal] = useState("");
-  console.log(currentUser);
 
   const handleKeyUp = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== "Enter") return;
@@ -91,7 +92,10 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
             {isMenuOpen && (
               <div className=" absolute top-14 right-0 bg-white shadow-md w-48  rounded-md py-1">
                 <div className="flex flex-col ">
-                  <div className="w-full font-medium text-sm text-black py-3 hover:bg-gray-100 transition px-4">
+                  <div
+                    onClick={() => router.push("/order")}
+                    className="w-full font-medium text-sm text-black py-3 hover:bg-gray-100 transition px-4"
+                  >
                     Orders
                   </div>{" "}
                   <div className="w-full font-medium text-sm text-black py-3 hover:bg-gray-100 transition px-4">

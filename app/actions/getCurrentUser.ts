@@ -18,9 +18,15 @@ export default async function getCurrentUser() {
       where: {
         email: session.user.email as string,
       },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+      },
     });
 
-    if (!currentUser) {
+    if (!currentUser?.id) {
       return null;
     }
 

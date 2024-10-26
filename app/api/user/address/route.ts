@@ -1,12 +1,9 @@
 import getCurrentUser from "@/app/actions/getCurrentUser";
-import getUserAddress from "@/app/actions/getUserAddress";
 import prisma from "@/app/libs/prismadb";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   const currentUser = await getCurrentUser();
-
-  console.log(currentUser);
 
   if (!currentUser) {
     return NextResponse.error();
@@ -15,8 +12,6 @@ export async function POST(request: Request) {
   const body = await request.json();
 
   const { address, phone, place } = body;
-
-  console.log("these are details");
 
   const newAddress = await prisma.address.create({
     data: {
@@ -78,8 +73,6 @@ export async function PUT(request: Request) {
   if (!currentUser) {
     return null;
   }
-
-  console.log("come here");
 
   const body = await request.json();
 

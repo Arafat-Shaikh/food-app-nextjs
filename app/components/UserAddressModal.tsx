@@ -29,7 +29,6 @@ const UserAddressModal = () => {
     if (loading) return;
 
     setLoading(true);
-    console.log(data);
 
     axios
       .post("/api/user/address", data)

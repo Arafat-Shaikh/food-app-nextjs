@@ -3,13 +3,12 @@
 import Image from "next/image";
 import { IoIosArrowRoundDown } from "react-icons/io";
 import { FoodListing } from "@prisma/client";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import EmptyPlace from "./EmptyPlace";
 import qs from "query-string";
 import { useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
 import { IoIosArrowBack } from "react-icons/io";
-import { url } from "inspector";
 
 interface HomeClientProps {
   foodList: FoodListing[];
@@ -80,7 +79,6 @@ const HomeClient: React.FC<HomeClientProps> = ({
       if (index !== -1) {
         categoryArr.splice(index, 1);
       } else {
-        console.log(categoryArr);
         categoryArr.push(label);
       }
     } else {
@@ -287,6 +285,7 @@ const HomeClient: React.FC<HomeClientProps> = ({
             length: totalPages,
           }).map((item, idx) => (
             <div
+              key={idx}
               onClick={() => handlePageFilter(idx + 1)}
               className={`${
                 isCurrentPage(idx + 1) ? "bg-neutral-300" : "bg-white border"

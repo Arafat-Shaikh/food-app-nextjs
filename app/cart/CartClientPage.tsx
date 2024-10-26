@@ -1,7 +1,7 @@
 "use client";
 
 import Container from "../components/Container";
-import Navbar from "../components/Navbar";
+import { ShoppingCart, ArrowRight } from "lucide-react";
 import { FaCheckCircle } from "react-icons/fa";
 import { GoHome } from "react-icons/go";
 import { CiLocationOn } from "react-icons/ci";
@@ -13,8 +13,8 @@ import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
 import useAddressModal from "../hooks/useAddressModal";
 import { FiPhone } from "react-icons/fi";
-import EmptyPlace from "../components/EmptyPlace";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 const food = {
   name: "Classic Margherita Pizza",
@@ -51,24 +51,24 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
   const delAddress = userAddress?.find((item) => item.deliveryAddress);
   const [loading, setLoading] = useState(false);
   const searchParams = useSearchParams();
-  const canceledParam = searchParams?.get("canceled");
-  const id = "kdh";
-
-  console.log(typeof canceledParam, canceledParam);
+  const { data: session } = useSession();
 
   useEffect(() => {
-    if (canceledParam) {
-      console.log("hello");
+    if (searchParams?.get("canceled")) {
       axios
-        .delete(`/api/user/order/${canceledParam.toString()}`)
+        .delete(`/api/user/order/${searchParams.get("canceled")?.toString()}`)
         .then(() => {
-          toast.success("order deleted successfully");
-        })
-        .finally(() => {
-          console.log("finally");
+          toast.success("Something went wrong");
         });
     }
-  }, [canceledParam]);
+    if (searchParams?.get("success")) {
+      axios.delete(`/api/cart`).then(() => {
+        toast.success("Payment Successful");
+      });
+
+      router.push("/");
+    }
+  }, [router, searchParams]);
 
   const itemTotalAmount = () => {
     if (!cartItems) {
@@ -96,9 +96,6 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
       })
       .catch((error) => {
         toast.error(error);
-      })
-      .finally(() => {
-        toast.success("item updated finally");
       });
   };
 
@@ -111,9 +108,6 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
       })
       .catch((error) => {
         toast.error("Something went wrong");
-      })
-      .finally(() => {
-        toast.success("ok");
       });
   };
 
@@ -121,14 +115,10 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
     axios
       .put("/api/user/address", item)
       .then(() => {
-        toast.success("item deleted");
         router.refresh();
       })
       .catch((error) => {
         toast.error("Something went wrong");
-      })
-      .finally(() => {
-        console.log("done");
       });
   };
 
@@ -145,6 +135,31 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
     setLoading(false);
   };
 
+  if (!cartItems?.length) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-primary/10 rounded-full">
+            <ShoppingCart className="w-8 h-8 text-primary" />
+          </div>
+          <h1 className="mb-4 text-2xl font-bold text-gray-900">
+            Your cart is empty
+          </h1>
+          <p className="mb-8 text-gray-600">
+            Looks like you haven&apos;t added any items to your cart yet.
+          </p>
+          <button
+            onClick={() => router.push("/")}
+            className="bg-black text-white px-3 py-2 rounded-md inline-flex items-center transition-transform duration-200 ease-in-out hover:translate-x-1"
+          >
+            Go back
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="bg-gray-200 h-full">
@@ -159,9 +174,9 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
                   </span>
                 </p>
                 <div className="flex items-center gap-x-4 text-lg font-bold divide-x-2 ">
-                  <p>Arafat Shaikh</p>
+                  <p>{session?.user?.name}</p>
                   <p className="pl-6 text-neutral-600">
-                    arafatshaikh823@gmail.com
+                    {session?.user?.email}
                   </p>
                 </div>
               </div>
@@ -216,14 +231,14 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
                               Add New Address
                             </h1>
                             <p className="text-xs text-neutral-500 mt-1 min-h-12">
-                              B 22/120-G-32, Kashmiri Ganj, Khojwan, Bhelupur,
-                              Varanasi, Uttar Pradesh 221010, India
+                              1234 Elm Street, Apt 5B, Downtown, Los Angeles,
+                              California 90015, USA.
                             </p>
                             <p className="flex gap-2 items-center text-sm font-bold mt-7 text-neutral-700">
                               <span>
                                 <FiPhone size={16} />
                               </span>
-                              999999999
+                              +1 (123) 456-7890
                             </p>
                             <button
                               onClick={() => addressModal.onOpen()}
@@ -299,16 +314,8 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
                 </div>
               </div>
               <div className=" bg-white px-6 py-7">
-                <div className="flex gap-3">
-                  <div className="relative h-16 w-16">
-                    <Image src={food.image} fill alt="" className="absolute " />
-                  </div>
-                  <div className="">
-                    <p className="font-semibold ">{food.restaurantName}</p>
-                    <p className="text-neutral-500 font-medium text-sm">
-                      {food.address}
-                    </p>
-                  </div>
+                <div className="border-b pb-6">
+                  <h1 className="text-2xl font-bold">Cart items</h1>
                 </div>
 
                 {cartItems?.map((item) => (
@@ -351,7 +358,7 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
                     </div>
                     <div className="flex justify-between border-b border-neutral-200 pb-3 mb-1">
                       <div>Delivery fee</div>
-                      <div>$ {DELIVERY_FEE}</div>
+                      <div>$ {DELIVERY_FEE.toFixed(2)}</div>
                     </div>
                     <div className="flex justify-between">
                       <div>Delivery Tip</div>
@@ -361,7 +368,7 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
                       <div>Platform fee</div>
                       <div>
                         <span className="text-neutral-400 line-through mr-2">
-                          $ 3.00
+                          $ {DELIVERY_FEE.toFixed(2)}
                         </span>
                         <span>{PLATFORM_FEE}</span>
                       </div>

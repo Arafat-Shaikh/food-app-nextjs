@@ -23,8 +23,6 @@ export default async function getItemByIdAndMenuItems(params: IParams) {
       },
     });
 
-    console.log(itemsByRestaurant);
-
     if (!itemById) {
       return null;
     }

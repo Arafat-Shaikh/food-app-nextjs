@@ -13,16 +13,6 @@ import useLoginModal from "@/app/hooks/useLoginModal";
 import { FiShoppingCart } from "react-icons/fi";
 import Link from "next/link";
 
-const food = {
-  name: "Classic Margherita Pizza",
-  image: "https://cdn.dummyjson.com/recipe-images/1.webp",
-  rating: 4.6,
-  reviewCount: 3,
-  price: 10.99,
-  address: "123 Main St, Cityville, USA",
-  restaurantName: "Pizza Paradise",
-};
-
 interface ItemPageClientProps {
   ItemById: FoodListing;
   itemByRestaurant: FoodListing[];

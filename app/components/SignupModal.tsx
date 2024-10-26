@@ -33,10 +33,6 @@ const SignupModal = () => {
       })
       .catch((error) => {
         alert("something went wrong");
-        console.log(error);
-      })
-      .finally(() => {
-        console.log("loading stop");
       });
   };
 

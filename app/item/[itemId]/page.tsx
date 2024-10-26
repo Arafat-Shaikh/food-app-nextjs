@@ -1,5 +1,4 @@
 import ClientOnly from "@/app/components/ClientOnly";
-import Navbar from "@/app/components/Navbar";
 import ItemPageClient from "./ItemPageClient";
 import EmptyPlace from "@/app/components/EmptyPlace";
 import getItemByIdAndMenuItems from "@/app/actions/getItemById";
@@ -12,8 +11,6 @@ interface IParams {
 const FoodItemPage = async ({ params }: { params: IParams }) => {
   const data = await getItemByIdAndMenuItems(params);
   const cartItems = await getCartItems();
-
-  console.log(data?.itemsByRestaurant);
 
   if (!data?.itemById) {
     return (

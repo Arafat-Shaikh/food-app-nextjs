@@ -31,8 +31,6 @@ export async function DELETE(
   if (!orderExists?.id) {
     return new NextResponse("Order doesn't exist", { status: 200 });
   }
-  console.log("orderId route");
-  console.log(orderId);
 
   await prisma.order.delete({
     where: {

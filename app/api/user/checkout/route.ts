@@ -4,6 +4,17 @@ import { stripe } from "@/app/libs/stripe";
 
 import prismadb from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
+import { OrderStatus } from "@prisma/client";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
 
 export async function POST(request: Request) {
   const currentUser = await getCurrentUser();
@@ -33,10 +44,23 @@ export async function POST(request: Request) {
     });
   });
 
+  line_items.push({
+    quantity: 1,
+    price_data: {
+      currency: "USD",
+      product_data: {
+        name: "Delivery and platform fee charge",
+      },
+      unit_amount: 4 * 100, // Amount in cents
+    },
+  });
+
   const order = await prismadb.order.create({
     data: {
       isPaid: false,
       userId: currentUser.id,
+      totalAmount,
+      status: OrderStatus.Processing,
       orderItems: {
         create: cartItems.map((item: any) => ({
           FoodListing: {
@@ -44,6 +68,7 @@ export async function POST(request: Request) {
               id: item.food.id,
             },
           },
+          quantity: item.quantity,
         })),
       },
     },
@@ -63,12 +88,12 @@ export async function POST(request: Request) {
     phone_number_collection: {
       enabled: true,
     },
-    success_url: `http://localhost:3000/cart?success=1`,
-    cancel_url: `http://localhost:3000/cart?canceled=${order.id}`,
+    success_url: `${process.env.FRONTEND_URL}/cart?success=${order.id}`,
+    cancel_url: `${process.env.FRONTEND_URL}/cart?canceled=${order.id}`,
     metadata: {
       orderId: order.id,
     },
   });
 
-  return NextResponse.json({ url: session.url });
+  return NextResponse.json({ url: session.url }, { headers: corsHeaders });
 }
