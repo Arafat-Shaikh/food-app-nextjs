@@ -1,6 +1,6 @@
 import ClientOnly from "@/app/components/ClientOnly";
 import ItemPageClient from "./ItemPageClient";
-import EmptyPlace from "@/app/components/EmptyPlace";
+import EmptyPlace from "@/app/components/EmptyPage";
 import getItemByIdAndMenuItems from "@/app/actions/getItemById";
 import { getCartItems } from "@/app/actions/getCartItems";
 

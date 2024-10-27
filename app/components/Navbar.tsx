@@ -63,13 +63,15 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
           />
         </div>
         <div className="flex gap-4 sm:gap-16 justify-between">
-          <button
-            onClick={() => loginModal.onOpen()}
-            className="hidden  lg:inline-flex gap-2 items-center font-medium text-base lg:text-lg"
-          >
-            <RxAvatar size={20} />
-            Sign in
-          </button>
+          {!currentUser && (
+            <button
+              onClick={() => loginModal.onOpen()}
+              className="hidden  lg:inline-flex gap-2 items-center font-medium text-base lg:text-lg"
+            >
+              <RxAvatar size={20} />
+              Sign in
+            </button>
+          )}
           <Link
             href={"/cart"}
             className="hidden lg:inline-flex gap-2 items-center font-medium  text-base lg:text-lg"
@@ -101,6 +103,12 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
                   <div className="w-full font-medium text-sm text-black py-3 hover:bg-gray-100 transition px-4">
                     Offers
                   </div>{" "}
+                  <Link
+                    href={"/cart"}
+                    className="w-full font-medium text-sm text-black py-3 hover:bg-gray-100 transition px-4 lg:hidden"
+                  >
+                    Cart
+                  </Link>
                   <div className="w-full font-medium text-sm text-black py-3 hover:bg-gray-100 transition px-4">
                     <span>Help</span>
                   </div>

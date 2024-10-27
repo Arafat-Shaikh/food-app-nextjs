@@ -4,6 +4,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import React, { useState } from "react";
 import Container from "../components/Container";
 import { format } from "date-fns";
+import EmptyPage from "../components/EmptyPage";
 
 const OrdersClientPage = ({ orders }: any) => {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
@@ -11,6 +12,10 @@ const OrdersClientPage = ({ orders }: any) => {
   const toggleOrderDetails = (orderId: string) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
   };
+
+  if (!orders.length) {
+    return <EmptyPage heading="You don' have any orders" subHeading="" />;
+  }
 
   return (
     <div className="bg-gray-50 h-full">

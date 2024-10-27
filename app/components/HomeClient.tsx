@@ -4,7 +4,6 @@ import Image from "next/image";
 import { IoIosArrowRoundDown } from "react-icons/io";
 import { FoodListing } from "@prisma/client";
 import { useRouter, useSearchParams } from "next/navigation";
-import EmptyPlace from "./EmptyPlace";
 import qs from "query-string";
 import { useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
@@ -21,7 +20,7 @@ const filters = [
     selected: false,
   },
   {
-    name: "BBq",
+    name: "BBQ",
     selected: false,
   },
   {
@@ -66,7 +65,11 @@ const HomeClient: React.FC<HomeClientProps> = ({
   const totalPages = Math.ceil(foodListLength / productsPerPage);
 
   if (foodList?.length === 0) {
-    return <EmptyPlace />;
+    return (
+      <div className="flex justify-center items-center">
+        <h1>No Items available</h1>
+      </div>
+    );
   }
 
   const handleFilter = (label: string) => {

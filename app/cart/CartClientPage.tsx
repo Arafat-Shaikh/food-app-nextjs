@@ -15,6 +15,7 @@ import useAddressModal from "../hooks/useAddressModal";
 import { FiPhone } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import EmptyPage from "../components/EmptyPage";
 
 const food = {
   name: "Classic Margherita Pizza",
@@ -123,6 +124,11 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
   };
 
   const onCheckout = async () => {
+    if (!delAddress) {
+      toast.error("Select delivery address");
+      return;
+    }
+
     setLoading(true);
     const response = await axios.post("/api/user/checkout", {
       totalAmount,
@@ -137,26 +143,10 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
 
   if (!cartItems?.length) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-primary/10 rounded-full">
-            <ShoppingCart className="w-8 h-8 text-primary" />
-          </div>
-          <h1 className="mb-4 text-2xl font-bold text-gray-900">
-            Your cart is empty
-          </h1>
-          <p className="mb-8 text-gray-600">
-            Looks like you haven&apos;t added any items to your cart yet.
-          </p>
-          <button
-            onClick={() => router.push("/")}
-            className="bg-black text-white px-3 py-2 rounded-md inline-flex items-center transition-transform duration-200 ease-in-out hover:translate-x-1"
-          >
-            Go back
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </button>
-        </div>
-      </div>
+      <EmptyPage
+        heading=" Your cart is empty"
+        subHeading="Looks like you haven't added any items to your cart yet."
+      />
     );
   }
 
@@ -168,7 +158,7 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
             <div className="lg:w-4/6">
               <div className="hidden bg-white px-10 py-8 lg:flex flex-col gap-x-8 gap-y-6">
                 <p className="inline-flex gap-6">
-                  <span className="text-lg font-bold">Logged In</span>{" "}
+                  <span className="text-lg font-bold">Logged In</span>
                   <span className="rounded-full text-[#60b246]">
                     <FaCheckCircle size={22} />
                   </span>
@@ -298,7 +288,7 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
                 </button>
               </div>
             </div>
-            <div className="lg:w-2/6  ">
+            <div className="lg:w-2/6">
               <div className="lg:hidden bg-white px-10 py-8 flex flex-col gap-x-8 gap-y-6">
                 <p className="inline-flex gap-6">
                   <span className="text-base font-bold">Logged In</span>
@@ -307,9 +297,9 @@ const CartClientPage: React.FC<CartClientPageProps> = ({
                   </span>
                 </p>
                 <div className="flex items-center gap-x-4 text-lg font-bold divide-x-2 overflow-hidden  ">
-                  <p className="text-sm">Arafat Shaikh</p>
+                  <p className="text-sm">{session?.user?.name}</p>
                   <p className="pl-6 text-sm text-neutral-600">
-                    arafatshaikh823@gmail.com
+                    {session?.user?.email}
                   </p>
                 </div>
               </div>
