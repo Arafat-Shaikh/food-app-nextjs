@@ -1,8 +1,8 @@
 import ClientOnly from "@/app/components/ClientOnly";
 import ItemPageClient from "./ItemPageClient";
-import EmptyPlace from "@/app/components/EmptyPage";
 import getItemByIdAndMenuItems from "@/app/actions/getItemById";
 import { getCartItems } from "@/app/actions/getCartItems";
+import EmptyPage from "@/app/components/EmptyPage";
 
 interface IParams {
   itemId?: string;
@@ -15,7 +15,7 @@ const FoodItemPage = async ({ params }: { params: IParams }) => {
   if (!data?.itemById) {
     return (
       <ClientOnly>
-        <EmptyPlace />
+        <EmptyPage heading="Item not found" subHeading="" />
       </ClientOnly>
     );
   }
